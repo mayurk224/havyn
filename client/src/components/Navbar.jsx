@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router'
+import { useAuth } from '../hooks/useAuth'
 import { 
   Bell, 
   CircleUserRound, 
@@ -49,6 +50,17 @@ import { Input } from '@/components/ui/input'
 
 const Navbar = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const { user, logout } = useAuth()
+
+  const getInitials = (name) => {
+    if (!name) return '?'
+    const nameParts = name.trim().split(/\s+/)
+    if (nameParts.length >= 2) {
+      return (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase()
+    }
+    return nameParts[0][0].toUpperCase()
+  }
+
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md transition-all duration-300">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -111,46 +123,57 @@ const Navbar = () => {
 
                 <div className="h-6 w-px bg-border mx-1 hidden sm:block" />
 
-                <DropdownMenu rotate={true}>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-9 w-9 rounded-full ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
-                      <Avatar className="h-9 w-9 border transition-transform hover:scale-105">
-                        <AvatarImage src="" alt="User" />
-                        <AvatarFallback className="bg-primary/5 text-primary">
-                          <User className="size-5" />
-                        </AvatarFallback>
-                      </Avatar>
+                {user ? (
+                  <DropdownMenu rotate={true}>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="relative h-9 w-9 rounded-full ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
+                        <Avatar className="h-9 w-9 border transition-transform hover:scale-105">
+                          <AvatarImage src={user.avatar} alt={user.fullName} />
+                          <AvatarFallback className="bg-primary/5 text-primary text-xs font-semibold">
+                            {getInitials(user.fullName)}
+                          </AvatarFallback>
+                        </Avatar>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent aria-label="User menu" className="w-56" align="end" forceMount>
+                      <DropdownMenuGroup>
+                        <DropdownMenuLabel className="font-normal">
+                          <div className="flex flex-col space-y-1">
+                            <p className="text-sm font-medium leading-none">{user.fullName}</p>
+                            <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+                          </div>
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem className="cursor-pointer">
+                          <User className="mr-2 size-4" />
+                          <span>Profile</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="cursor-pointer lg:hidden">
+                          <Heart className="mr-2 size-4" />
+                          <span>Wishlist</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="cursor-pointer">
+                          <Settings className="mr-2 size-4" />
+                          <span>Settings</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem 
+                          className="cursor-pointer text-destructive focus:text-destructive"
+                          onClick={() => logout()}
+                        >
+                          <LogOut className="mr-2 size-4" />
+                          <span>Log out</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuGroup>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <Link to="/login">
+                    <Button variant="default" size="sm" className="rounded-full px-5 h-9 font-medium shadow-sm hover:shadow-md transition-all">
+                      Sign In
                     </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent aria-label="User menu" className="w-56" align="end" forceMount>
-                    <DropdownMenuGroup>
-                      <DropdownMenuLabel className="font-normal">
-                        <div className="flex flex-col space-y-1">
-                          <p className="text-sm font-medium leading-none">John Doe</p>
-                          <p className="text-xs leading-none text-muted-foreground">john.doe@example.com</p>
-                        </div>
-                      </DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem className="cursor-pointer">
-                        <User className="mr-2 size-4" />
-                        <span>Profile</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="cursor-pointer lg:hidden">
-                        <Heart className="mr-2 size-4" />
-                        <span>Wishlist</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="cursor-pointer">
-                        <Settings className="mr-2 size-4" />
-                        <span>Settings</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive">
-                        <LogOut className="mr-2 size-4" />
-                        <span>Log out</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuGroup>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                  </Link>
+                )}
               </div>
             </div>
           </div>
