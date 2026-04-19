@@ -30,19 +30,6 @@ const userSchema = new mongoose.Schema(
       default: "Customer",
     },
 
-    isOnboarded: { type: Boolean, default: false },
-
-    customerDetails: {
-      shirtSize: {
-        type: String,
-        enum: ["XS", "S", "M", "L", "XL", "XXL"],
-      },
-      pantSize: {
-        type: String,
-        enum: ["28", "30", "32", "34", "36", "38", "40", "42", "44", "46"],
-      },
-    },
-
     vendorDetails: {
       storeName: {
         type: String,

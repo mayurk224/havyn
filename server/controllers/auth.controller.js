@@ -19,6 +19,13 @@ const generateToken = (id, role, isOnboarded) => {
   );
 };
 
+const authCookieOptions = {
+  httpOnly: true,
+  secure: config.NODE_ENV === "production",
+  sameSite: config.NODE_ENV === "production" ? "none" : "lax",
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+};
+
 /**
  * @desc    Handle Google Auth (Register / Login)
  * @route   POST /api/auth/google
@@ -58,17 +65,18 @@ export const googleAuthHandler = async (req, res) => {
         fullName,
         avatar,
         role: "Customer", // Everyone defaults to Customer initially
-        isOnboarded: false, // This forces the frontend to redirect to /onboarding
+        isOnboarded: false,
       });
     }
 
     // 4. Generate JWT containing vital routing info
     const token = generateToken(user._id, user.role, user.isOnboarded);
 
-    // 5. Send response
+    // 5. Set auth cookie + send response
+    res.cookie("token", token, authCookieOptions);
+
     return res.status(200).json({
       success: true,
-      token,
       user: {
         id: user._id,
         fullName: user.fullName,
@@ -80,8 +88,22 @@ export const googleAuthHandler = async (req, res) => {
     });
   } catch (error) {
     console.error("Google Auth Error:", error);
-    return res.status(401).json({ success: false, message: "Authentication failed" });
+    return res
+      .status(401)
+      .json({ success: false, message: "Authentication failed" });
   }
+};
+
+/**
+ * @desc    Logout current user
+ * @route   POST /api/auth/logout
+ * @access  Public
+ */
+export const logout = async (req, res) => {
+  res.clearCookie("token", authCookieOptions);
+  return res
+    .status(200)
+    .json({ success: true, message: "Logged out successfully" });
 };
 
 /**
@@ -93,7 +115,9 @@ export const getMe = async (req, res) => {
   try {
     const user = await userModel.findById(req.user.id);
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     res.status(200).json({

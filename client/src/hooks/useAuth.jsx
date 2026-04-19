@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { authService } from '../services/auth.service';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { authService } from "../services/auth.service";
 
 const AuthContext = createContext({
   user: null,
@@ -16,19 +16,14 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const initAuth = async () => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        try {
-          const data = await authService.getMe();
-          if (data.success) {
-            setUser(data.user);
-          } else {
-            localStorage.removeItem('token');
-          }
-        } catch (err) {
-          console.error("Auth initialization failed:", err);
-          localStorage.removeItem('token');
+      try {
+        const data = await authService.getMe();
+        if (data.success) {
+          setUser(data.user);
         }
+      } catch (err) {
+        // No valid cookie/session yet; keep user logged out silently.
+        setUser(null);
       }
       setLoading(false);
     };
@@ -42,16 +37,15 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       const data = await authService.googleLogin(idToken);
       if (data.success) {
-        localStorage.setItem('token', data.token);
         setUser(data.user);
         return { success: true, user: data.user };
       } else {
-        setError(data.message || 'Login failed');
+        setError(data.message || "Login failed");
         return { success: false, message: data.message };
       }
     } catch (err) {
-      console.error('Google login error:', err);
-      const errMsg = err.response?.data?.message || 'Authentication error';
+      console.error("Google login error:", err);
+      const errMsg = err.response?.data?.message || "Authentication error";
       setError(errMsg);
       return { success: false, message: errMsg };
     } finally {
@@ -59,13 +53,19 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
+  const logout = async () => {
+    try {
+      await authService.logout();
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, error, loginWithGoogle, logout }}>
+    <AuthContext.Provider
+      value={{ user, loading, error, loginWithGoogle, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -74,7 +74,7 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

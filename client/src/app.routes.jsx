@@ -25,12 +25,12 @@ export const router = createBrowserRouter([
     path: "/landing",
     element: <Landing />,
   },
-//   {
-//     path: "/terms",
-//     element: <Terms />,
-//   },
-//   {
-//     path: "/privacy",
-//     element: <LegalPrivacy />,
-//   },
+  //   {
+  //     path: "/terms",
+  //     element: <Terms />,
+  //   },
+  //   {
+  //     path: "/privacy",
+  //     element: <LegalPrivacy />,
+  //   },
 ]);

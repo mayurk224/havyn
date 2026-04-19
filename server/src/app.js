@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-
+// CORS Configuration
 app.use(
   cors({
     origin: config.CLIENT_URL,
