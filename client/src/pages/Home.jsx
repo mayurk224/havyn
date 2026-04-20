@@ -75,6 +75,36 @@ const Home = () => {
     { id: 8, image: "/images/product.png", title: "Modern Vibe" },
   ];
 
+  const blogPosts = [
+    {
+      id: 1,
+      title: "Mastering the Art of Sustainable Streetwear Fashion Trends",
+      date: "Oct 12, 2023",
+      category: "Fashion",
+      description:
+        "Dive into the world of sustainable streetwear and discover how you can stay trendy while being environmentally conscious. From organic cotton threads to recycled polyester blends, we explore the best brands and styles that are making a difference in the fashion industry today.",
+      image: "/images/fashion.png",
+    },
+    {
+      id: 2,
+      title: "The Ultimate Guide to Modern Living Room Aesthetics",
+      date: "Oct 15, 2023",
+      category: "Interior",
+      description:
+        "Transform your living space with our comprehensive guide to modern aesthetics. Learn about minimalist furniture, color palettes that soothe the soul, and how to incorporate greenery into your home for a refreshing vibe that impresses every guest who walks through your door.",
+      image: "/images/living_room.png",
+    },
+    {
+      id: 3,
+      title: "Essential Accessories for the Discerning Professional",
+      date: "Oct 18, 2023",
+      category: "Lifestyle",
+      description:
+        "Every professional needs a set of reliable accessories. We take a look at the top watches, bags, and tech gadgets that combine functionality with high-end design. Elevate your daily routine and make a lasting impression in the boardroom with these carefully curated pieces.",
+      image: "/images/product.png",
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -250,8 +280,6 @@ const Home = () => {
             </div>
           </div>
         </section>
-
-        {/* Redesigned Sunshine Styles Section */}
         <section className="py-24 overflow-hidden bg-background">
           <div className="container mx-auto px-4 mb-20 text-center">
             <h2 className="text-5xl md:text-7xl font-bold tracking-tighter mb-8 featured-title-gradient">
@@ -291,6 +319,76 @@ const Home = () => {
             {/* Gradient Fades for Smooth Scroll Edges */}
             <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
             <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+          </div>
+        </section>
+        <section className="blog py-24 bg-muted/5">
+          <div className="container mx-auto px-4">
+            <div className="max-w-3xl mx-auto text-center mb-20">
+              <h2 className="text-5xl md:text-7xl font-bold tracking-tighter mb-8 featured-title-gradient">
+                Read Super Blog
+              </h2>
+              <p className="text-muted-foreground text-lg md:text-xl leading-relaxed">
+                Dive into a sea of stylish outfits that promise to impress and
+                delight with their cool and trendy selections. Stay updated with
+                the latest fashion insights and home design tips.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+              {blogPosts.map((post) => (
+                <Card
+                  key={post.id}
+                  className="premium-card bg-background border-none shadow-sm rounded-[2.5rem] overflow-hidden group flex flex-col p-0"
+                >
+                  <div className="relative overflow-hidden shrink-0">
+                    <AspectRatio ratio={16 / 10}>
+                      <img
+                        src={post.image}
+                        alt={post.title}
+                        className="object-cover w-full h-full transition-transform duration-1000 group-hover:scale-110"
+                      />
+                    </AspectRatio>
+                    <div className="absolute top-6 left-6">
+                      <Badge className="bg-white/90 backdrop-blur-md text-black hover:bg-white px-4 py-1.5 rounded-full text-xs font-bold shadow-sm">
+                        {post.category}
+                      </Badge>
+                    </div>
+                  </div>
+                  <CardContent className="p-8 flex flex-col flex-grow">
+                    <div className="text-xs font-medium text-muted-foreground mb-4 font-mono">
+                      {post.date}
+                    </div>
+                    <CardTitle className="text-2xl font-bold mb-4 tracking-tight line-clamp-2 leading-snug">
+                      {post.title}
+                    </CardTitle>
+                    <p className="text-muted-foreground text-base mb-8 line-clamp-5 leading-relaxed">
+                      {post.description}
+                    </p>
+                    <div className="mt-auto pt-4 border-t border-muted/50">
+                      <Button
+                        variant="link"
+                        className="p-0 h-auto text-primary font-bold text-lg group/btn hover:no-underline"
+                      >
+                        Read Post
+                        <span className="ml-2 transition-transform duration-300 group-hover/btn:translate-x-1">
+                          →
+                        </span>
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            <div className="mt-20 text-center">
+              <Button
+                variant="outline"
+                size="lg"
+                className="rounded-full px-16 h-16 text-xl font-black border-2 hover:bg-primary hover:text-white hover:scale-105 transition-all shadow-lg"
+              >
+                View More Blogs
+              </Button>
+            </div>
           </div>
         </section>
       </main>
