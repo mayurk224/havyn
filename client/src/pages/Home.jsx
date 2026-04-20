@@ -41,15 +41,18 @@ const Home = () => {
             </h1>
             <p className="text-lg md:text-2xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
               Our collection is constantly updated with the latest trends and
-              timeless pieces. Ensure you're always on point with the latest drops.
-              Shop now and let your fashion sense shine.
+              timeless pieces. Ensure you're always on point with the latest
+              drops. Shop now and let your fashion sense shine.
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 max-w-7xl mx-auto">
             {/* Left Card: Image on Top */}
-            <Card className="premium-card overflow-hidden rounded-[3rem] bg-card group border-none shadow-none">
-              <AspectRatio ratio={4 / 5} className="overflow-hidden rounded-[2.5rem]">
+            <Card className="premium-card overflow-hidden rounded-[3rem] bg-card group border-none shadow-none p-0">
+              <AspectRatio
+                ratio={4 / 5}
+                className="overflow-hidden rounded-[2.5rem]"
+              >
                 <img
                   src="/images/featured/fashion1.png"
                   alt="New Arrivals"
@@ -60,32 +63,48 @@ const Home = () => {
                 <div className="inline-block px-4 py-1 rounded-full bg-primary/5 text-primary text-xs font-bold mb-4 tracking-[0.2em] uppercase">
                   New Arrivals
                 </div>
-                <h3 className="text-4xl font-bold mb-4 tracking-tight">Urban Essentials</h3>
+                <h3 className="text-4xl font-bold mb-4 tracking-tight">
+                  Urban Essentials
+                </h3>
                 <p className="text-muted-foreground text-lg mb-8 leading-relaxed max-w-md">
-                   Where street culture meets high-end craft. Discover the collection that defines the modern urban aesthetic.
+                  Where street culture meets high-end craft. Discover the
+                  collection that defines the modern urban aesthetic.
                 </p>
-                <Button size="lg" className="rounded-full px-10 h-14 text-lg font-semibold hover:scale-105 transition-transform shadow-xl shadow-primary/10">
+                <Button
+                  size="lg"
+                  className="rounded-full px-10 h-14 text-lg font-semibold hover:scale-105 transition-transform shadow-xl shadow-primary/10"
+                >
                   Shop Streetwear
                 </Button>
               </CardContent>
             </Card>
 
             {/* Right Card: Text on Top */}
-            <Card className="premium-card overflow-hidden rounded-[3rem] bg-card group flex flex-col border-none shadow-none mt-0 lg:mt-24">
+            <Card className="premium-card overflow-hidden rounded-[3rem] bg-card group flex flex-col border-none shadow-none mt-0 lg:mt-24 p-0">
               <CardContent className="pt-6 pb-10 px-4 order-2 lg:order-1">
                 <div className="inline-block px-4 py-1 rounded-full bg-primary/5 text-primary text-xs font-bold mb-4 tracking-[0.2em] uppercase">
                   Curated Staples
                 </div>
-                <h3 className="text-4xl font-bold mb-4 tracking-tight">Luxury Basics</h3>
+                <h3 className="text-4xl font-bold mb-4 tracking-tight">
+                  Luxury Basics
+                </h3>
                 <p className="text-muted-foreground text-lg mb-8 leading-relaxed max-w-md">
-                   Elevated pieces designed for effortless versatility. Premium fabrics met with timeless silhouettes.
+                  Elevated pieces designed for effortless versatility. Premium
+                  fabrics met with timeless silhouettes.
                 </p>
-                <Button variant="outline" size="lg" className="rounded-full px-10 h-14 text-lg font-semibold border-2 hover:bg-primary hover:text-white hover:scale-105 transition-all">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="rounded-full px-10 h-14 text-lg font-semibold border-2 hover:bg-primary hover:text-white hover:scale-105 transition-all"
+                >
                   Explore Luxury
                 </Button>
               </CardContent>
               <div className="order-1 lg:order-2">
-                <AspectRatio ratio={4 / 5} className="overflow-hidden rounded-[2.5rem]">
+                <AspectRatio
+                  ratio={4 / 5}
+                  className="overflow-hidden rounded-[2.5rem]"
+                >
                   <img
                     src="/images/featured/fashion2.png"
                     alt="Luxury Staples"
