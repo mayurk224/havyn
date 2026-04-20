@@ -128,3 +128,20 @@
     @apply font-sans;
     }
 }
+@layer utilities {
+  .featured-title-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-muted-foreground to-primary;
+  }
+
+  .premium-card {
+    @apply transition-all duration-500 ease-in-out border border-border/50;
+  }
+
+  .premium-card:hover {
+    @apply -translate-y-2 shadow-2xl border-primary/20 bg-accent/5;
+  }
+
+  .glass-content {
+    @apply backdrop-blur-md bg-white/10 dark:bg-black/10 border border-white/20 dark:border-white/10;
+  }
+}
