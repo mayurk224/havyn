@@ -6,6 +6,7 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Heart, Plus } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 const Home = () => {
   const slides = [
@@ -388,6 +389,49 @@ const Home = () => {
               >
                 View More Blogs
               </Button>
+            </div>
+          </div>
+        </section>
+        <section className="relative w-full overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-zinc-950 via-zinc-900 to-black p-8 md:p-12 lg:p-16 shadow-2xl transition-all duration-500 hover:shadow-primary/5 group">
+          {/* Decorative Gradients */}
+          <div className="absolute -top-24 -left-24 w-64 h-64 bg-primary/10 rounded-full blur-[100px] pointer-events-none group-hover:bg-primary/20 transition-colors duration-700" />
+          <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-primary/5 rounded-full blur-[80px] pointer-events-none group-hover:bg-primary/15 transition-colors duration-700" />
+
+          <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-end justify-between gap-12 lg:gap-24">
+            {/* Left Section: Content & Subscribe */}
+            <div className="w-full lg:max-w-2xl space-y-10">
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-white leading-[1.1] tracking-tight text-center lg:text-left">
+                Get 50% Off All Outfits. <br className="hidden md:block" />
+                <span className="text-zinc-500">Join Now Immediately.</span>
+              </h2>
+
+              <div className="relative max-w-md mx-auto lg:mx-0 group/input focus-within:scale-[1.02] transition-all duration-500">
+                <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl opacity-0 group-focus-within/input:opacity-100 transition-opacity" />
+                <div className="relative flex items-center">
+                  <Input
+                    type="email"
+                    placeholder="Enter your email here..."
+                    className="h-16 rounded-full bg-white/5 border-white/10 pl-8 pr-32 text-white placeholder:text-zinc-500 focus-visible:ring-primary/50 focus-visible:bg-white/10 transition-all border-2"
+                  />
+                  <Button className="absolute right-2 h-12 rounded-full px-8 font-bold bg-white text-black hover:bg-zinc-200 transition-all hover:scale-105 active:scale-95 shadow-lg">
+                    Subscribe
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Section: Description */}
+            <div className="w-full lg:max-w-[280px] text-center lg:text-right lg:self-end">
+              <p className="text-zinc-400 text-sm md:text-base leading-relaxed font-medium">
+                Unlock exclusive access to a limited-time offer: enjoy a 50%
+                discount on all outfits when you join today. Perfect for any
+                occasion.
+              </p>
+              <div className="mt-4 flex justify-center lg:justify-end gap-1">
+                <div className="w-2 h-2 rounded-full bg-primary" />
+                <div className="w-2 h-2 rounded-full bg-zinc-800" />
+                <div className="w-2 h-2 rounded-full bg-zinc-800" />
+              </div>
             </div>
           </div>
         </section>
