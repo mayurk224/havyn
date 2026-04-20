@@ -64,6 +64,17 @@ const Home = () => {
     },
   ];
 
+  const sunshineStyles = [
+    { id: 1, image: "/images/fashion.png", title: "Floral Breeze" },
+    { id: 2, image: "/images/featured/fashion1.png", title: "Summer Linen" },
+    { id: 3, image: "/images/products/sunglasses.png", title: "Golden Hour" },
+    { id: 4, image: "/images/featured/fashion2.png", title: "Coastal Chic" },
+    { id: 5, image: "/images/products/bag.png", title: "Weekend Getaway" },
+    { id: 6, image: "/images/products/sneaker.png", title: "Urban Explorer" },
+    { id: 7, image: "/images/living_room.png", title: "Open Space" },
+    { id: 8, image: "/images/product.png", title: "Modern Vibe" },
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -174,7 +185,7 @@ const Home = () => {
                   >
                     {cat}
                   </Badge>
-                )
+                ),
               )}
             </div>
 
@@ -237,6 +248,49 @@ const Home = () => {
                 View All Collection
               </Button>
             </div>
+          </div>
+        </section>
+
+        {/* Redesigned Sunshine Styles Section */}
+        <section className="py-24 overflow-hidden bg-background">
+          <div className="container mx-auto px-4 mb-20 text-center">
+            <h2 className="text-5xl md:text-7xl font-bold tracking-tighter mb-8 featured-title-gradient">
+              Styles that welcome sunshine's return
+            </h2>
+            <p className="text-muted-foreground text-lg md:text-xl max-w-3xl mx-auto leading-relaxed">
+              Recently released products are light, colorful, and comfortable,
+              perfect for enjoying the outdoors in pleasant weather. Designed
+              for the warm, sunny days of spring and summer.
+            </p>
+          </div>
+
+          <div className="marquee-container relative px-4">
+            <div className="marquee-content py-10">
+              {[...sunshineStyles, ...sunshineStyles].map((item, index) => (
+                <Card
+                  key={`${item.id}-${index}`}
+                  className="w-[300px] shrink-0 premium-card bg-card border-none overflow-hidden rounded-[2.5rem] shadow-none group"
+                >
+                  <AspectRatio ratio={3 / 4}>
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8">
+                      <h4 className="text-white text-2xl font-bold tracking-tight mb-2">
+                        {item.title}
+                      </h4>
+                      <div className="w-10 h-1 bg-primary rounded-full" />
+                    </div>
+                  </AspectRatio>
+                </Card>
+              ))}
+            </div>
+
+            {/* Gradient Fades for Smooth Scroll Edges */}
+            <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+            <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
           </div>
         </section>
       </main>
