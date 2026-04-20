@@ -25,13 +25,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  navigationMenuTriggerStyle,
-} from '@/components/ui/navigation-menu'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import {
   Tooltip,
@@ -170,7 +167,7 @@ const Navbar = () => {
                 ) : (
                   <Link to="/login">
                     <Button variant="default" size="sm" className="rounded-full px-5 h-9 font-medium shadow-sm hover:shadow-md transition-all">
-                      Sign In
+                      Login
                     </Button>
                   </Link>
                 )}
