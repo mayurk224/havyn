@@ -7,6 +7,7 @@ const AuthContext = createContext({
   error: null,
   loginWithGoogle: async () => {},
   logout: () => {},
+  setUser: () => {},
 });
 
 export const AuthProvider = ({ children }) => {
@@ -64,7 +65,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, error, loginWithGoogle, logout }}
+      value={{ user, loading, error, loginWithGoogle, logout, setUser }}
     >
       {children}
     </AuthContext.Provider>

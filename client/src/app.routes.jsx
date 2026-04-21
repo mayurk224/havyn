@@ -2,6 +2,8 @@ import { createBrowserRouter } from "react-router";
 import Home from "./pages/Home";
 import AuthLayout from "./pages/AuthLayout";
 import ProductDetails from "./pages/ProductDetails";
+import SellerOnboarding from "./pages/SellerOnboarding";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 export const router = createBrowserRouter([
   {
@@ -19,6 +21,14 @@ export const router = createBrowserRouter([
   {
     path: "/product-detail",
     element: <ProductDetails />,
+  },
+  {
+    path: "/seller/onboarding",
+    element: (
+      <ProtectedRoute>
+        <SellerOnboarding />
+      </ProtectedRoute>
+    ),
   },
   //   {
   //     path: "/terms",
