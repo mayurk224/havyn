@@ -3,10 +3,8 @@ import { Link } from 'react-router'
 import { useAuth } from '../hooks/useAuth'
 import { 
   Bell, 
-  CircleUserRound, 
   ShoppingCart, 
   Search, 
-  Menu, 
   Settings, 
   LogOut, 
   User,

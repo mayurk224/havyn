@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router";
 import Home from "./pages/Home";
 import AuthLayout from "./pages/AuthLayout";
+import ProductDetails from "./pages/ProductDetails";
 
 export const router = createBrowserRouter([
   {
@@ -14,6 +15,10 @@ export const router = createBrowserRouter([
   {
     path: "/signup",
     element: <AuthLayout />,
+  },
+  {
+    path: "/product-detail",
+    element: <ProductDetails />,
   },
   //   {
   //     path: "/terms",
