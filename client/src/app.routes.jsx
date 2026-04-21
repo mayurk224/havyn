@@ -5,6 +5,7 @@ import ProductDetails from "./pages/ProductDetails";
 import SellerOnboarding from "./pages/SellerOnboarding";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import CreateProduct from "./pages/CreateProduct";
+import ProductsFeed from "./pages/ProductsFeed";
 
 export const router = createBrowserRouter([
   {
@@ -38,6 +39,10 @@ export const router = createBrowserRouter([
         <CreateProduct />
       </ProtectedRoute>
     ),
+  },
+  {
+    path: "/products",
+    element: <ProductsFeed />,
   },
   //   {
   //     path: "/terms",

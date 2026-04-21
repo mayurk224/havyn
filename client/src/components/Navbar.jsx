@@ -186,14 +186,19 @@ const Navbar = () => {
           <div className={`flex-col md:flex-row items-center justify-between gap-2 py-3 border-t md:h-14 ${isSearchOpen ? 'flex' : 'hidden md:flex'}`}>
             <div className="flex items-center gap-1 overflow-x-auto no-scrollbar w-full md:w-auto pb-2 md:pb-0">
               {['Men', 'Women', 'Child', 'New Arrived'].map((category) => (
-                <Button 
+                <Link 
                   key={category} 
-                  variant="ghost" 
-                  size="sm" 
-                  className="whitespace-nowrap font-medium text-muted-foreground hover:text-foreground hover:bg-primary/5 rounded-full transition-all"
+                  to={`/catalog?category=${category}`}
+                  className="block"
                 >
-                  {category}
-                </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="whitespace-nowrap font-medium text-muted-foreground hover:text-foreground hover:bg-primary/5 rounded-full transition-all"
+                  >
+                    {category}
+                  </Button>
+                </Link>
               ))}
             </div>
             <div className="relative w-full md:max-w-md">

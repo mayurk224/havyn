@@ -1,4 +1,3 @@
-
 import { imagekit } from "../config/imagekit.js";
 import productModel from "../models/product.model.js";
 import userModel from "../models/user.model.js";
@@ -12,7 +11,8 @@ const allowedCategories = new Set([
 ]);
 
 const parseVariants = (rawVariants) => {
-  const variants = typeof rawVariants === "string" ? JSON.parse(rawVariants) : rawVariants;
+  const variants =
+    typeof rawVariants === "string" ? JSON.parse(rawVariants) : rawVariants;
 
   if (!Array.isArray(variants) || variants.length === 0) {
     throw new Error("At least one product variant is required.");
@@ -33,7 +33,10 @@ const parseVariants = (rawVariants) => {
  */
 export const createProduct = async (req, res) => {
   try {
-    console.log("Product Creation Request Body:", JSON.stringify(req.body, null, 2));
+    console.log(
+      "Product Creation Request Body:",
+      JSON.stringify(req.body, null, 2),
+    );
     console.log("Product Creation Files Count:", req.files?.length || 0);
 
     // 1. Ensure the user is an approved vendor
@@ -150,13 +153,81 @@ export const createProduct = async (req, res) => {
     // Handle Mongoose Validation Errors
     if (error.name === "ValidationError") {
       const messages = Object.values(error.errors).map((err) => err.message);
-      return res.status(400).json({ 
-        success: false, 
-        message: "Validation failed", 
-        errors: messages 
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        errors: messages,
       });
     }
 
-    return res.status(500).json({ success: false, message: error.message || "Failed to create product." });
+    return res
+      .status(500)
+      .json({
+        success: false,
+        message: error.message || "Failed to create product.",
+      });
+  }
+};
+
+/**
+ * @desc    Get all active products (with pagination, filtering, and sorting)
+ * @route   GET /api/products
+ * @access  Public (Shoppers don't need to be logged in to browse)
+ */
+export const getProducts = async (req, res) => {
+  try {
+    // 1. Pagination Setup
+    // Default to page 1, and 12 items per page (perfect for a 3x4 or 4x3 CSS grid)
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 12;
+    const skip = (page - 1) * limit;
+
+    // 2. Build the Filter Query
+    // CRITICAL: We only want shoppers to see published items, never drafts.
+    let query = { status: "Active" };
+
+    // Optional: If the frontend passes a category (?category=Shirts)
+    if (req.query.category) {
+      query.category = req.query.category;
+    }
+
+    // Optional: Search by title (basic regex search)
+    if (req.query.search) {
+      query.title = { $regex: req.query.search, $options: "i" }; // 'i' makes it case-insensitive
+    }
+
+    // 3. Determine Sorting Logic
+    let sortStage = { createdAt: -1 }; // Default: Newest arrivals first
+
+    if (req.query.sort === "price_low") sortStage = { basePrice: 1 };
+    if (req.query.sort === "price_high") sortStage = { basePrice: -1 };
+    if (req.query.sort === "oldest") sortStage = { createdAt: 1 };
+
+    // 4. Execute the Query
+    const products = await Product.find(query)
+      // The Magic Trick: Pull the vendor's store name and avatar from the User collection
+      .populate("vendorId", "vendorDetails.storeName avatar")
+      .sort(sortStage)
+      .skip(skip)
+      .limit(limit);
+
+    // 5. Get the total count of documents that match the filter for frontend math
+    const totalProducts = await productModel.countDocuments(query);
+
+    return res.status(200).json({
+      success: true,
+      data: products,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(totalProducts / limit),
+        totalItems: totalProducts,
+        hasNextPage: page * limit < totalProducts,
+      },
+    });
+  } catch (error) {
+    console.error("Fetch Products Error:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Failed to fetch product catalog." });
   }
 };
