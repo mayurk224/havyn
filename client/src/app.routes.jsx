@@ -4,6 +4,7 @@ import AuthLayout from "./pages/AuthLayout";
 import ProductDetails from "./pages/ProductDetails";
 import SellerOnboarding from "./pages/SellerOnboarding";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import CreateProduct from "./pages/CreateProduct";
 
 export const router = createBrowserRouter([
   {
@@ -27,6 +28,14 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <SellerOnboarding />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/seller/create-product",
+    element: (
+      <ProtectedRoute>
+        <CreateProduct />
       </ProtectedRoute>
     ),
   },

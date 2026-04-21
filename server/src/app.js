@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import { config } from "../config/config.js";
 import authRoutes from "../routes/auth.routes.js";
 import vendorRoutes from "../routes/vendor.routes.js";
+import productRoutes from "../routes/product.routes.js";
 
 const app = express();
 
@@ -26,5 +27,30 @@ app.get("/health", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/vendor", vendorRoutes);
+app.use("/api/products", productRoutes);
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error("Global Error Handler:", err);
+
+  // Multer Specific Errors
+  if (err.code === "LIMIT_FILE_SIZE") {
+    return res.status(400).json({ 
+      success: false, 
+      message: "File too large. Maximum limit is 1MB per image." 
+    });
+  }
+  if (err.code === "LIMIT_UNEXPECTED_FILE") {
+    return res.status(400).json({ 
+      success: false, 
+      message: "Too many files uploaded or invalid field name." 
+    });
+  }
+
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || "Something went wrong on the server.",
+  });
+});
 
 export default app;

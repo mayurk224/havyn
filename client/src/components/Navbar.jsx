@@ -9,7 +9,8 @@ import {
   LogOut, 
   User,
   Heart,
-  X
+  X,
+  PlusCircle
 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -151,6 +152,14 @@ const Navbar = () => {
                           <Settings className="mr-2 size-4" />
                           <span>Settings</span>
                         </DropdownMenuItem>
+                        {user.role === 'Vendor' && (
+                          <Link to="/seller/create-product" className="w-full">
+                            <DropdownMenuItem className="cursor-pointer">
+                              <PlusCircle className="mr-2 size-4" />
+                              <span>Create Product</span>
+                            </DropdownMenuItem>
+                          </Link>
+                        )}
                         <DropdownMenuSeparator />
                         <DropdownMenuItem 
                           className="cursor-pointer text-destructive focus:text-destructive"
