@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -9,6 +9,25 @@ import { toast } from "sonner";
 import ProductCard from "@/components/ProductCard";
 import { useAuth } from "@/hooks/useAuth";
 
+const WishlistSkeleton = () => (
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    {[...Array(8)].map((_, i) => (
+      <div key={i} className="space-y-6">
+        <div className="aspect-square bg-muted/40 animate-pulse rounded-[2.5rem]" />
+        <div className="space-y-3 px-2">
+          <div className="h-3 bg-muted/40 animate-pulse rounded-full w-1/4" />
+          <div className="h-6 bg-muted/40 animate-pulse rounded-full w-3/4" />
+          <div className="h-4 bg-muted/40 animate-pulse rounded-full w-full" />
+          <div className="flex items-center justify-between pt-2">
+            <div className="h-6 bg-muted/40 animate-pulse rounded-full w-1/3" />
+            <div className="h-10 w-10 bg-muted/40 animate-pulse rounded-2xl" />
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
 const Wishlist = () => {
   const { user, loading: isAuthLoading, setUser } = useAuth();
   const [items, setItems] = useState([]);
@@ -16,24 +35,34 @@ const Wishlist = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (isAuthLoading) {
-      return;
-    }
-
-    if (!user) {
+    if (isAuthLoading || !user) {
       return;
     }
 
     const loadWishlist = async () => {
       try {
-        setIsLoading(true);
+        // Only set loading if we don't have items yet to prevent flickering
+        if (items.length === 0) {
+          setIsLoading(true);
+        }
         setError(null);
         const response = await wishlistService.getWishlist();
+        
+        // Use functional updates to ensure we have the latest state
         setItems(response.data || []);
-        setUser((currentUser) => currentUser ? ({
-          ...currentUser,
-          wishlist: response.wishlistIds,
-        }) : currentUser);
+        
+        // Update global user wishlist IDs if they've changed
+        const newIds = response.wishlistIds || [];
+        const currentIds = user.wishlist || [];
+        const isSame = newIds.length === currentIds.length && 
+                      newIds.every((id, idx) => id === currentIds[idx]);
+        
+        if (!isSame) {
+          setUser((currentUser) => currentUser ? ({
+            ...currentUser,
+            wishlist: newIds,
+          }) : currentUser);
+        }
       } catch (err) {
         console.error("Error fetching wishlist:", err);
         const message = err?.response?.status === 401
@@ -47,25 +76,26 @@ const Wishlist = () => {
     };
 
     loadWishlist();
-  }, [isAuthLoading, setUser, user]);
+    // Dependency on user?.id prevents infinite loop when user object changes identity
+  }, [isAuthLoading, user?.id, setUser]);
 
-  const visibleItems = user?.wishlist
-    ? items.filter((item) => user.wishlist.includes(item._id || item.id))
-    : [];
+  const visibleItems = useMemo(() => {
+     if (!user?.wishlist) return [];
+     return items.filter((item) => user.wishlist.includes(item._id || item.id));
+   }, [items, user?.wishlist]);
 
   const emptyStateMessage = user
     ? error
     : "Please log in to view your wishlist.";
-  const showLoading = isAuthLoading || (Boolean(user) && isLoading);
 
-  if (showLoading) {
+  if (isAuthLoading) {
     return (
       <div className="min-h-screen flex flex-col bg-background">
         <Navbar />
         <main className="flex-grow flex items-center justify-center" aria-busy="true" aria-live="polite">
           <div className="flex flex-col items-center gap-4">
             <Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />
-            <p className="text-muted-foreground animate-pulse">Loading your wishlist...</p>
+            <p className="text-muted-foreground animate-pulse">Checking your session...</p>
           </div>
         </main>
         <Footer />
@@ -113,13 +143,15 @@ const Wishlist = () => {
           </Button>
         </div>
 
-        {error && user ? (
+        {error && user && !isLoading ? (
           <div className="mb-6 rounded-2xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive" role="alert">
             {error}
           </div>
         ) : null}
 
-        {visibleItems.length === 0 ? (
+        {isLoading && visibleItems.length === 0 ? (
+          <WishlistSkeleton />
+        ) : visibleItems.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center border-2 border-dashed rounded-3xl bg-muted/30" role="status">
             <div className="h-20 w-20 rounded-full bg-muted flex items-center justify-center mb-6" aria-hidden="true">
               <PackageOpen className="h-10 w-10 text-muted-foreground" />
