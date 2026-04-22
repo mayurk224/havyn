@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-// import { productService } from '../services/product.service'; // Your API service
+import { productService } from "../services/product.service";
 import { Link } from "react-router";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
@@ -11,6 +11,7 @@ import {
   SelectItem,
 } from "../components/ui/select";
 import ProductCard from "../components/ProductCard";
+import Navbar from "@/components/Navbar";
 
 const ProductsFeed = () => {
   // --- State Management ---
@@ -31,65 +32,21 @@ const ProductsFeed = () => {
       setIsLoading(true);
       setError("");
       try {
-        // Here we pass our state to the service hook which builds the URL:
-        // /api/products?page=1&category=Shirts&sort=newest&search=
-        // const response = await productService.getProducts({ page, category, sort, search });
+        const response = await productService.getProducts({
+          page,
+          category,
+          sort,
+          search,
+        });
 
-        // Simulating the backend response shape we built earlier
-        const mockResponse = {
-          data: [
-            {
-              _id: "1",
-              title: "Heavyweight Tee",
-              basePrice: 25,
-              vendorId: { vendorDetails: { storeName: "Midnight Denim" } },
-              images: [
-                {
-                  url: "https://via.placeholder.com/400x500/18181b/ffffff?text=Product+Image",
-                },
-              ],
-            },
-            {
-              _id: "2",
-              title: "Utility Cargo Pants",
-              basePrice: 65,
-              vendorId: { vendorDetails: { storeName: "Streetwear Hub" } },
-              images: [
-                {
-                  url: "https://via.placeholder.com/400x500/18181b/ffffff?text=Product+Image",
-                },
-              ],
-            },
-            {
-              _id: "3",
-              title: "Minimalist Hoodie",
-              basePrice: 45,
-              vendorId: { vendorDetails: { storeName: "Midnight Denim" } },
-              images: [
-                {
-                  url: "https://via.placeholder.com/400x500/18181b/ffffff?text=Product+Image",
-                },
-              ],
-            },
-            {
-              _id: "4",
-              title: "Canvas Tote",
-              basePrice: 15,
-              vendorId: { vendorDetails: { storeName: "Basics Co" } },
-              images: [
-                {
-                  url: "https://via.placeholder.com/400x500/18181b/ffffff?text=Product+Image",
-                },
-              ],
-            },
-          ],
-          pagination: { totalPages: 3, currentPage: page },
-        };
-
-        setProducts(mockResponse.data);
-        setTotalPages(mockResponse.pagination.totalPages);
+        setProducts(response?.data || []);
+        setTotalPages(response?.pagination?.totalPages || 1);
       } catch (err) {
-        setError("Failed to load products.");
+        setProducts([]);
+        setTotalPages(1);
+        setError(
+          err?.response?.data?.message || "Failed to load products.",
+        );
       } finally {
         setIsLoading(false);
       }
@@ -110,37 +67,27 @@ const ProductsFeed = () => {
   };
 
   return (
-    <div className="min-h-screen p-8 font-sans">
-      <div className="max-w-7xl mx-auto">
-        {/* --- Header & Search --- */}
-        <div className="flex flex-col md:flex-row justify-between items-end mb-8 pb-6 border-b gap-4">
-          <div>
-            <h1 className="text-4xl font-bold tracking-tighter uppercase">
-              Catalog
-            </h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Discover pieces from independent creators.
-            </p>
-          </div>
-          <div className="w-full md:w-72">
-            <Input
-              type="text"
-              placeholder="Search items..."
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setPage(1);
-              }}
-              className="w-full"
-            />
-          </div>
-        </div>
+    <div className="min-h-screen">
+      <Navbar />
+      <div className="p-8">
 
         {/* --- Toolbar: Filters & Sorting --- */}
         <div className="flex flex-col sm:flex-row justify-between items-center mb-10 gap-4">
+          <div className="w-full sm:max-w-sm">
+            <Input
+              value={search}
+              onChange={(event) => {
+                setSearch(event.target.value);
+                setPage(1);
+              }}
+              placeholder="Search products..."
+              className="w-full"
+            />
+          </div>
+
           {/* Category Tabs */}
           <div className="flex gap-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0 hide-scrollbar">
-            {["All", "Shirts", "Pants", "Outerwear", "Accessories"].map(
+            {["All", "Shirts", "Pants", "Outerwear", "Accessories", "Footwear"].map(
               (cat) => (
                 <Button
                   key={cat}
@@ -204,10 +151,11 @@ const ProductsFeed = () => {
                   image:
                     product.images?.[0]?.url ||
                     "https://via.placeholder.com/400x500/18181b/ffffff?text=Product+Image",
-                  category:
+                  category: product.category || "Uncategorized",
+                  description:
+                    product.description ||
                     product.vendorId?.vendorDetails?.storeName ||
-                    "Unknown Store",
-                  description: "", // Description placeholder, not currently provided by basic feed Mock
+                    "",
                   price: `$${product.basePrice.toFixed(2)}`,
                 }}
               />

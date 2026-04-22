@@ -1,6 +1,7 @@
 import { imagekit } from "../config/imagekit.js";
 import productModel from "../models/product.model.js";
 import userModel from "../models/user.model.js";
+import mongoose from "mongoose";
 
 const allowedCategories = new Set([
   "Shirts",
@@ -204,7 +205,7 @@ export const getProducts = async (req, res) => {
     if (req.query.sort === "oldest") sortStage = { createdAt: 1 };
 
     // 4. Execute the Query
-    const products = await Product.find(query)
+    const products = await productModel.find(query)
       // The Magic Trick: Pull the vendor's store name and avatar from the User collection
       .populate("vendorId", "vendorDetails.storeName avatar")
       .sort(sortStage)
@@ -229,5 +230,45 @@ export const getProducts = async (req, res) => {
     return res
       .status(500)
       .json({ success: false, message: "Failed to fetch product catalog." });
+  }
+};
+
+/**
+ * @desc    Get a single active product by id
+ * @route   GET /api/products/:id
+ * @access  Public
+ */
+export const getProductById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid product id.",
+      });
+    }
+
+    const product = await productModel
+      .findOne({ _id: id, status: "Active" })
+      .populate("vendorId", "vendorDetails.storeName avatar");
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: product,
+    });
+  } catch (error) {
+    console.error("Fetch Product By Id Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch product details.",
+    });
   }
 };

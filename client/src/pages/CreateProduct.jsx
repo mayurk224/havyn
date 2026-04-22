@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router';
 import { productService } from '../services/product.service';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -6,7 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Loader2, Plus, X, Upload } from "lucide-react"
+import { Loader2, Plus, X, Upload, ArrowLeft } from "lucide-react"
 
 const CreateProduct = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -17,7 +18,7 @@ const CreateProduct = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('Shirts');
-  
+
   // Images State
   const [images, setImages] = useState([]);
 
@@ -116,9 +117,16 @@ const CreateProduct = () => {
 
   return (
     <div className="min-h-screen p-8 max-w-4xl mx-auto space-y-8 font-sans">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Create Listing</h1>
-        <p className="text-muted-foreground mt-2">Add a new item to your store inventory.</p>
+      <div className="space-y-4">
+        <Link to="/">
+          <Button variant="ghost" size="sm" className="gap-2 -ml-2 text-muted-foreground hover:text-foreground">
+            <ArrowLeft className="h-4 w-4" /> Back to Home
+          </Button>
+        </Link>
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Create Listing</h1>
+          <p className="text-muted-foreground mt-2">Add a new item to your store inventory.</p>
+        </div>
       </div>
 
       {message && (
@@ -134,7 +142,7 @@ const CreateProduct = () => {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-8">
-        
+
         {/* --- Section 1: Core Details --- */}
         <Card>
           <CardHeader>
@@ -144,7 +152,7 @@ const CreateProduct = () => {
           <CardContent className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="title">Product Title</Label>
-              <Input 
+              <Input
                 id="title"
                 required
                 value={title}
@@ -152,7 +160,7 @@ const CreateProduct = () => {
                 placeholder="Product Title"
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="category">Category</Label>
               <Select value={category} onValueChange={setCategory}>
@@ -168,10 +176,10 @@ const CreateProduct = () => {
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="description">Description</Label>
-              <Textarea 
+              <Textarea
                 id="description"
                 required
                 rows={4}
@@ -199,10 +207,10 @@ const CreateProduct = () => {
                   <span className="text-sm text-muted-foreground mt-1">PNG, JPG, JPEG</span>
                 </div>
               </Label>
-              <Input 
+              <Input
                 id="images"
-                type="file" 
-                multiple 
+                type="file"
+                multiple
                 accept="image/*"
                 onChange={handleImageSelect}
                 className="hidden"
@@ -230,8 +238,8 @@ const CreateProduct = () => {
               <div key={index} className="flex flex-wrap sm:flex-nowrap items-end gap-4 p-4 border rounded-lg bg-card">
                 <div className="flex-1 min-w-[120px] space-y-2">
                   <Label>Color</Label>
-                  <Input 
-                    type="text" 
+                  <Input
+                    type="text"
                     value={variant.color}
                     onChange={(e) => handleVariantChange(index, 'color', e.target.value)}
                     placeholder="e.g. Black"
@@ -239,8 +247,8 @@ const CreateProduct = () => {
                 </div>
                 <div className="w-full sm:w-24 space-y-2">
                   <Label>Size</Label>
-                  <Select 
-                    value={variant.size} 
+                  <Select
+                    value={variant.size}
                     onValueChange={(value) => handleVariantChange(index, 'size', value)}
                   >
                     <SelectTrigger>
@@ -257,8 +265,8 @@ const CreateProduct = () => {
                 </div>
                 <div className="w-full sm:w-24 space-y-2">
                   <Label>Stock</Label>
-                  <Input 
-                    type="number" 
+                  <Input
+                    type="number"
                     min="0"
                     value={variant.stock}
                     onChange={(e) => handleVariantChange(index, 'stock', Number(e.target.value))}
@@ -266,8 +274,8 @@ const CreateProduct = () => {
                 </div>
                 <div className="w-full sm:w-32 space-y-2">
                   <Label>Price ($)</Label>
-                  <Input 
-                    type="number" 
+                  <Input
+                    type="number"
                     min="0"
                     step="0.01"
                     value={variant.price}
@@ -275,9 +283,9 @@ const CreateProduct = () => {
                   />
                 </div>
                 {variants.length > 1 && (
-                  <Button 
-                    type="button" 
-                    variant="ghost" 
+                  <Button
+                    type="button"
+                    variant="ghost"
                     size="icon"
                     onClick={() => removeVariant(index)}
                     className="text-muted-foreground hover:text-destructive shrink-0 mt-4 sm:mt-0"
@@ -293,8 +301,8 @@ const CreateProduct = () => {
 
         {/* --- Submit --- */}
         <div className="flex justify-end pt-4">
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             size="lg"
             disabled={isSubmitting}
             className="w-full md:w-auto"

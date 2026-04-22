@@ -1,14 +1,15 @@
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import ProductImageGallery from "@/components/ProductImageGallery";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { Link, useParams } from "react-router";
+import { productService } from "@/services/product.service";
 import {
-  Star,
   Heart,
   Truck,
   Calendar,
@@ -18,24 +19,112 @@ import {
 } from "lucide-react";
 
 const ProductDetails = () => {
-  // Sample images from public folder
-  const productImages = [
-    "/images/products/bag.png",
-    "/images/products/sneaker.png",
-    "/images/products/sunglasses.png",
-    "/images/products/watch.png",
-  ];
+  const { id } = useParams();
+  const [product, setProduct] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
+  const [selectedSize, setSelectedSize] = useState("");
 
-  const [selectedColor, setSelectedColor] = useState("black");
-  const [selectedSize, setSelectedSize] = useState("m");
+  useEffect(() => {
+    const fetchProduct = async () => {
+      setIsLoading(true);
+      setError("");
 
-  const colors = [
-    { id: "black", name: "Phantom Black", class: "bg-black" },
-    { id: "silver", name: "Arctic Silver", class: "bg-slate-300" },
-    { id: "navy", name: "Deep Navy", class: "bg-blue-900" },
-  ];
+      try {
+        const response = await productService.getProductById(id);
+        const nextProduct = response?.data || null;
 
-  const sizes = ["s", "m", "l", "xl"];
+        setProduct(nextProduct);
+
+        const firstVariant = nextProduct?.variants?.[0];
+        setSelectedColor(firstVariant?.color || "");
+        setSelectedSize(firstVariant?.size?.toLowerCase() || "");
+      } catch (err) {
+        setProduct(null);
+        setError(
+          err?.response?.data?.message || "Failed to load product details.",
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchProduct();
+    }
+  }, [id]);
+
+  const productImages =
+    product?.images?.map((image) => image.url).filter(Boolean) || [];
+  const fallbackImage =
+    "https://via.placeholder.com/900x900/18181b/ffffff?text=Product+Image";
+  const galleryImages =
+    productImages.length > 0 ? productImages : [fallbackImage];
+
+  const variantColors = Array.from(
+    new Set((product?.variants || []).map((variant) => variant.color).filter(Boolean)),
+  );
+  const variantSizes = Array.from(
+    new Set(
+      (product?.variants || [])
+        .filter((variant) => !selectedColor || variant.color === selectedColor)
+        .map((variant) => variant.size)
+        .filter(Boolean),
+    ),
+  );
+  const selectedVariant =
+    product?.variants?.find(
+      (variant) =>
+        variant.color === selectedColor &&
+        variant.size?.toLowerCase() === selectedSize,
+    ) || product?.variants?.[0];
+  const displayPrice = selectedVariant?.price ?? product?.basePrice ?? 0;
+  const inStock = (selectedVariant?.stock ?? 0) > 0;
+
+  useEffect(() => {
+    if (
+      selectedColor &&
+      variantSizes.length > 0 &&
+      !variantSizes.some((size) => size.toLowerCase() === selectedSize)
+    ) {
+      setSelectedSize(variantSizes[0].toLowerCase());
+    }
+  }, [selectedColor, selectedSize, variantSizes]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <Navbar />
+        <main className="flex-grow px-4 sm:px-6 lg:px-8 py-10">
+          <div className="text-center text-muted-foreground">
+            Loading product details...
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <Navbar />
+        <main className="flex-grow px-4 sm:px-6 lg:px-8 py-10">
+          <div className="max-w-xl mx-auto border rounded-2xl p-8 text-center space-y-4">
+            <h1 className="text-2xl font-bold">Product unavailable</h1>
+            <p className="text-muted-foreground">
+              {error || "We couldn't find this product."}
+            </p>
+            <Button asChild>
+              <Link to="/products">Back to products</Link>
+            </Button>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -52,32 +141,32 @@ const ProductDetails = () => {
             >
               <ol className="flex items-center space-x-2">
                 <li>
-                  <a href="/" className="hover:text-primary transition-colors">
+                  <Link to="/" className="hover:text-primary transition-colors">
                     Home
-                  </a>
+                  </Link>
                 </li>
                 <li>
                   <span className="mx-2 text-muted-foreground/40">/</span>
                 </li>
                 <li>
-                  <a
-                    href="/products"
+                  <Link
+                    to="/products"
                     className="hover:text-primary transition-colors"
                   >
                     Products
-                  </a>
+                  </Link>
                 </li>
                 <li>
                   <span className="mx-2 text-muted-foreground/40">/</span>
                 </li>
                 <li className="font-medium text-foreground">
-                  Premium Collection
+                  {product.title}
                 </li>
               </ol>
             </nav>
           </div>
 
-          <ProductImageGallery images={productImages} label="Best Seller" />
+          <ProductImageGallery images={galleryImages} label={product.category} />
         </section>
         <section className="product-info mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
           {/* Header Info */}
@@ -85,50 +174,55 @@ const ProductDetails = () => {
             <div className="flex items-start justify-between">
               <div className="flex items-start gap-20">
                 <div>
-                <Badge variant="secondary" className="mb-2">
-                  New Arrival
-                </Badge>
-                <h1 className="text-4xl font-bold tracking-tight text-foreground">
-                  Premium Urban Backpack
-                </h1>
-              </div>
-              <Button
-                variant="outline"
-                size="icon"
-                className="rounded-full hover:bg-red-50 hover:text-red-500 transition-colors"
-              >
-                <Heart className="h-5 w-5" />
-              </Button>
+                  <Badge variant="secondary" className="mb-2">
+                    {product.category}
+                  </Badge>
+                  <h1 className="text-4xl font-bold tracking-tight text-foreground">
+                    {product.title}
+                  </h1>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    Sold by{" "}
+                    {product.vendorId?.vendorDetails?.storeName || "Unknown Store"}
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="rounded-full hover:bg-red-50 hover:text-red-500 transition-colors"
+                >
+                  <Heart className="h-5 w-5" />
+                </Button>
               </div>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground line-through">
-                    $150.00
+                  <p className="text-sm text-muted-foreground">
+                    Price
                   </p>
-                  <h2 className="text-4xl font-bold text-primary">$100.00</h2>
+                  <h2 className="text-4xl font-bold text-primary">
+                    ${displayPrice.toFixed(2)}
+                  </h2>
                 </div>
                 <Button
                   size="lg"
                   className="h-14 px-12 text-lg font-semibold shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform"
+                  disabled={!inStock}
                 >
-                  Add to Cart
+                  {inStock ? "Add to Cart" : "Out of Stock"}
                 </Button>
               </div>
             </div>
 
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1">
-                {[1, 2, 3, 4].map((i) => (
-                  <Star key={i} className="h-4 w-4 fill-primary text-primary" />
-                ))}
-                <Star className="h-4 w-4 text-muted-foreground" />
-              </div>
               <span className="text-sm text-muted-foreground">
-                (124 Reviews)
+                {product.variants?.length || 0} variants available
               </span>
               <Separator orientation="vertical" className="h-4" />
-              <span className="text-sm font-medium text-emerald-600 flex items-center gap-1">
-                <ShieldCheck className="h-4 w-4" /> In Stock
+              <span
+                className={`text-sm font-medium flex items-center gap-1 ${inStock ? "text-emerald-600" : "text-destructive"
+                  }`}
+              >
+                <ShieldCheck className="h-4 w-4" />
+                {inStock ? `In Stock (${selectedVariant?.stock ?? 0})` : "Out of Stock"}
               </span>
             </div>
           </div>
@@ -144,7 +238,7 @@ const ProductDetails = () => {
                 <Label className="text-base font-semibold text-foreground uppercase tracking-wider">
                   Select Color:{" "}
                   <span className="text-muted-foreground font-normal normal-case ml-2">
-                    {colors.find((c) => c.id === selectedColor)?.name}
+                    {selectedColor || "Not available"}
                   </span>
                 </Label>
                 <RadioGroup
@@ -152,21 +246,22 @@ const ProductDetails = () => {
                   onValueChange={setSelectedColor}
                   className="flex gap-3"
                 >
-                  {colors.map((color) => (
-                    <div key={color.id} className="flex items-center">
+                  {variantColors.map((color) => (
+                    <div key={color} className="flex items-center">
                       <RadioGroupItem
-                        value={color.id}
-                        id={`color-${color.id}`}
+                        value={color}
+                        id={`color-${color}`}
                         className="sr-only"
                       />
                       <Label
-                        htmlFor={`color-${color.id}`}
-                        className={`
-                        w-10 h-10 rounded-full cursor-pointer ring-offset-2 transition-all
-                        ${color.class}
-                        ${selectedColor === color.id ? "ring-2 ring-primary scale-110" : "ring-1 ring-transparent hover:scale-105"}
-                      `}
-                      />
+                        htmlFor={`color-${color}`}
+                        className={`px-4 py-2 rounded-full border cursor-pointer ring-offset-2 transition-all text-sm ${selectedColor === color
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-border hover:bg-muted"
+                          }`}
+                      >
+                        {color}
+                      </Label>
                     </div>
                   ))}
                 </RadioGroup>
@@ -176,19 +271,24 @@ const ProductDetails = () => {
                 <Label className="text-base font-semibold text-foreground uppercase tracking-wider">
                   Select Size:{" "}
                   <span className="text-muted-foreground font-normal normal-case ml-2 capitalize">
-                    {selectedSize}
+                    {selectedSize || "Not available"}
                   </span>
                 </Label>
                 <div className="flex flex-wrap gap-2">
-                  {sizes.map((size) => (
+                  {variantSizes.map((size) => (
                     <Button
                       key={size}
-                      variant={selectedSize === size ? "default" : "outline"}
+                      variant={
+                        selectedSize === size.toLowerCase() ? "default" : "outline"
+                      }
                       className={`
                       w-12 h-12 uppercase font-medium transition-all
-                      ${selectedSize === size ? "shadow-md shadow-primary/10" : "hover:bg-muted"}
+                      ${selectedSize === size.toLowerCase()
+                          ? "shadow-md shadow-primary/10"
+                          : "hover:bg-muted"
+                        }
                     `}
-                      onClick={() => setSelectedSize(size)}
+                      onClick={() => setSelectedSize(size.toLowerCase())}
                     >
                       {size}
                     </Button>
@@ -203,10 +303,7 @@ const ProductDetails = () => {
                 Description
               </h3>
               <p className="text-muted-foreground leading-relaxed">
-                Elevate your daily commute with our Premium Urban Backpack.
-                Crafted from water-resistant ballistic nylon, this versatile
-                companion features a dedicated 16" laptop sleeve, quick-access
-                pockets, and ergonomic padded straps for all-day comfort.
+                {product.description}
               </p>
             </div>
 
@@ -223,13 +320,17 @@ const ProductDetails = () => {
                 {
                   icon: Calendar,
                   label: "Estimated Arrival",
-                  sub: "Apr 24 - Apr 26",
+                  sub: "Calculated at checkout",
                 },
-                { icon: Package, label: "Package Weight", sub: "1.2 kg" },
+                {
+                  icon: Package,
+                  label: "Store",
+                  sub: product.vendorId?.vendorDetails?.storeName || "Unknown Store",
+                },
                 {
                   icon: RotateCcw,
                   label: "Return Policy",
-                  sub: "30 Days Free Return",
+                  sub: "Return policy shared at checkout",
                 },
               ].map((item, idx) => (
                 <div
