@@ -139,27 +139,22 @@ const ProductsFeed = () => {
           className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 transition-opacity duration-300 ${isLoading ? "opacity-50" : "opacity-100"}`}
         >
           {products.map((product) => (
-            <Link
-              to={`/product/${product._id}`}
+            <ProductCard
               key={product._id}
-              className="block group"
-            >
-              <ProductCard
-                product={{
-                  id: product._id,
-                  title: product.title,
-                  image:
-                    product.images?.[0]?.url ||
-                    "https://via.placeholder.com/400x500/18181b/ffffff?text=Product+Image",
-                  category: product.category || "Uncategorized",
-                  description:
-                    product.description ||
-                    product.vendorId?.vendorDetails?.storeName ||
-                    "",
-                  price: `$${product.basePrice.toFixed(2)}`,
-                }}
-              />
-            </Link>
+              product={{
+                id: product._id,
+                title: product.title,
+                image:
+                  product.images?.[0]?.url ||
+                  "https://via.placeholder.com/400x500/18181b/ffffff?text=Product+Image",
+                category: product.category || "Uncategorized",
+                description:
+                  product.description ||
+                  product.vendorId?.vendorDetails?.storeName ||
+                  "",
+                price: product.basePrice,
+              }}
+            />
           ))}
         </div>
 

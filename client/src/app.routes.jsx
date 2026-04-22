@@ -6,6 +6,7 @@ import SellerOnboarding from "./pages/SellerOnboarding";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import CreateProduct from "./pages/CreateProduct";
 import ProductsFeed from "./pages/ProductsFeed";
+import Wishlist from "./pages/Wishlist";
 
 export const router = createBrowserRouter([
   {
@@ -21,7 +22,7 @@ export const router = createBrowserRouter([
     element: <AuthLayout />,
   },
   {
-    path: "/product/:id",
+    path: "/products/:id",
     element: <ProductDetails />,
   },
   {
@@ -43,6 +44,14 @@ export const router = createBrowserRouter([
   {
     path: "/products",
     element: <ProductsFeed />,
+  },
+  {
+    path: "/wishlist",
+    element: (
+      <ProtectedRoute>
+        <Wishlist />
+      </ProtectedRoute>
+    ),
   },
   //   {
   //     path: "/terms",

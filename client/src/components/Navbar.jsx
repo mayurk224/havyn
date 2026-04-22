@@ -83,14 +83,33 @@ const Navbar = () => {
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      className="rounded-full"
+                      className="rounded-full lg:hidden"
                       onClick={() => setIsSearchOpen(!isSearchOpen)}
                     >
-                      {isSearchOpen ? <X className="size-5 lg:hidden" /> : <Search className="size-5 lg:hidden" />}
-                      <Heart className="size-5 hidden lg:block" />
+                      {isSearchOpen ? <X className="size-5" /> : <Search className="size-5" />}
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>{isSearchOpen ? 'Close Search' : 'Wishlist'}</TooltipContent>
+                  <TooltipContent>{isSearchOpen ? 'Close Search' : 'Search'}</TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link to="/wishlist">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="rounded-full relative"
+                      >
+                        <Heart className="size-5" />
+                        {user?.wishlist?.length > 0 && (
+                          <Badge className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full p-0 text-[8px] border-2 border-background">
+                            {user.wishlist.length}
+                          </Badge>
+                        )}
+                      </Button>
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent>Wishlist</TooltipContent>
                 </Tooltip>
 
                 <Tooltip>
@@ -144,10 +163,12 @@ const Navbar = () => {
                           <User className="mr-2 size-4" />
                           <span>Profile</span>
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="cursor-pointer lg:hidden">
-                          <Heart className="mr-2 size-4" />
-                          <span>Wishlist</span>
-                        </DropdownMenuItem>
+                        <Link to="/wishlist">
+                          <DropdownMenuItem className="cursor-pointer lg:hidden">
+                            <Heart className="mr-2 size-4" />
+                            <span>Wishlist</span>
+                          </DropdownMenuItem>
+                        </Link>
                         <DropdownMenuItem className="cursor-pointer">
                           <Settings className="mr-2 size-4" />
                           <span>Settings</span>

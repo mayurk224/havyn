@@ -1,6 +1,7 @@
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import ProductImageGallery from "@/components/ProductImageGallery";
+import WishlistButton from "@/components/WishlistButton";
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,7 +11,6 @@ import { Label } from "@/components/ui/label";
 import { Link, useParams } from "react-router";
 import { productService } from "@/services/product.service";
 import {
-  Heart,
   Truck,
   Calendar,
   Package,
@@ -81,16 +81,6 @@ const ProductDetails = () => {
     ) || product?.variants?.[0];
   const displayPrice = selectedVariant?.price ?? product?.basePrice ?? 0;
   const inStock = (selectedVariant?.stock ?? 0) > 0;
-
-  useEffect(() => {
-    if (
-      selectedColor &&
-      variantSizes.length > 0 &&
-      !variantSizes.some((size) => size.toLowerCase() === selectedSize)
-    ) {
-      setSelectedSize(variantSizes[0].toLowerCase());
-    }
-  }, [selectedColor, selectedSize, variantSizes]);
 
   if (isLoading) {
     return (
@@ -185,13 +175,10 @@ const ProductDetails = () => {
                     {product.vendorId?.vendorDetails?.storeName || "Unknown Store"}
                   </p>
                 </div>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="rounded-full hover:bg-red-50 hover:text-red-500 transition-colors"
-                >
-                  <Heart className="h-5 w-5" />
-                </Button>
+                <WishlistButton
+                  productId={product._id || product.id}
+                  className="h-10 w-10 border border-input bg-background hover:opacity-100"
+                />
               </div>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <div className="space-y-1">
@@ -243,7 +230,25 @@ const ProductDetails = () => {
                 </Label>
                 <RadioGroup
                   value={selectedColor}
-                  onValueChange={setSelectedColor}
+                  onValueChange={(nextColor) => {
+                    setSelectedColor(nextColor);
+
+                    const nextSizes = Array.from(
+                      new Set(
+                        (product?.variants || [])
+                          .filter((variant) => !nextColor || variant.color === nextColor)
+                          .map((variant) => variant.size)
+                          .filter(Boolean),
+                      ),
+                    );
+
+                    if (
+                      nextSizes.length > 0 &&
+                      !nextSizes.some((size) => size.toLowerCase() === selectedSize)
+                    ) {
+                      setSelectedSize(nextSizes[0].toLowerCase());
+                    }
+                  }}
                   className="flex gap-3"
                 >
                   {variantColors.map((color) => (

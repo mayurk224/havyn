@@ -5,7 +5,6 @@ import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Heart, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
@@ -37,7 +36,7 @@ const Home = () => {
       id: 1,
       title: "Urban Minimalist Sneaker",
       description: "Breathable mesh and premium leather details.",
-      price: "$120.00",
+      price: 120.00,
       image: "/images/products/sneaker.png",
       category: "Shoes",
     },
@@ -45,7 +44,7 @@ const Home = () => {
       id: 2,
       title: "Signature Mesh Watch",
       description: "Timeless design with a modern silver strap.",
-      price: "$250.00",
+      price: 250.00,
       image: "/images/products/watch.png",
       category: "Accessories",
     },
@@ -53,7 +52,7 @@ const Home = () => {
       id: 3,
       title: "Desert Leather Tote",
       description: "Handcrafted Italian leather for daily use.",
-      price: "$180.00",
+      price: 180.00,
       image: "/images/products/bag.png",
       category: "Travel",
     },
@@ -61,7 +60,7 @@ const Home = () => {
       id: 4,
       title: "Nightshade Sunglasses",
       description: "UV protection with a classic aesthetic frame.",
-      price: "$95.00",
+      price: 95.00,
       image: "/images/products/sunglasses.png",
       category: "Accessories",
     },

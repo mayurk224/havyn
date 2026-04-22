@@ -5,6 +5,7 @@ import { config } from "../config/config.js";
 import authRoutes from "../routes/auth.routes.js";
 import vendorRoutes from "../routes/vendor.routes.js";
 import productRoutes from "../routes/product.routes.js";
+import wishlistRoutes from "../routes/wishlist.routes.js";
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.get("/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/vendor", vendorRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/wishlist", wishlistRoutes);
 
 // Global Error Handler
 app.use((err, req, res, next) => {

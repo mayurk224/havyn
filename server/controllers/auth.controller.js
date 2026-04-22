@@ -5,6 +5,16 @@ import userModel from "../models/user.model.js";
 
 const client = new OAuth2Client(config.GOOGLE_CLIENT_ID);
 
+const serializeUser = (user) => ({
+  id: user._id,
+  fullName: user.fullName,
+  email: user.email,
+  avatar: user.avatar,
+  role: user.role,
+  isOnboarded: user.isOnboarded,
+  wishlist: (user.wishlist || []).map((item) => item.toString()),
+});
+
 const generateToken = (id, role, isOnboarded) => {
   return jwt.sign(
     {
@@ -77,14 +87,7 @@ export const googleAuthHandler = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      user: {
-        id: user._id,
-        fullName: user.fullName,
-        email: user.email,
-        avatar: user.avatar,
-        role: user.role,
-        isOnboarded: user.isOnboarded,
-      },
+      user: serializeUser(user),
     });
   } catch (error) {
     console.error("Google Auth Error:", error);
@@ -122,14 +125,7 @@ export const getMe = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      user: {
-        id: user._id,
-        fullName: user.fullName,
-        email: user.email,
-        avatar: user.avatar,
-        role: user.role,
-        isOnboarded: user.isOnboarded,
-      },
+      user: serializeUser(user),
     });
   } catch (error) {
     console.error("Get Me Error:", error);

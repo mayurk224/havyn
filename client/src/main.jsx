@@ -1,7 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import { AuthProvider } from "./hooks/useAuth.jsx";
+import { AuthProvider } from "./hooks/auth-context.jsx";
 import { TooltipProvider } from "./components/ui/tooltip";
 import "./index.css";
 import App from "./App.jsx";
