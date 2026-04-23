@@ -11,7 +11,9 @@ import {
   SelectItem,
 } from "../components/ui/select";
 import ProductCard from "../components/ProductCard";
+import ProductCardSkeleton from "../components/ProductCardSkeleton";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 const ProductsFeed = () => {
   // --- State Management ---
@@ -28,9 +30,10 @@ const ProductsFeed = () => {
 
   // --- Data Fetching ---
   useEffect(() => {
+    setIsLoading(true);
+    setError("");
+
     const fetchProducts = async () => {
-      setIsLoading(true);
-      setError("");
       try {
         const response = await productService.getProducts({
           page,
@@ -73,18 +76,7 @@ const ProductsFeed = () => {
 
         {/* --- Toolbar: Filters & Sorting --- */}
         <div className="flex flex-col sm:flex-row justify-between items-center mb-10 gap-4">
-          <div className="w-full sm:max-w-sm">
-            <Input
-              value={search}
-              onChange={(event) => {
-                setSearch(event.target.value);
-                setPage(1);
-              }}
-              placeholder="Search products..."
-              className="w-full"
-            />
-          </div>
-
+          
           {/* Category Tabs */}
           <div className="flex gap-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0 hide-scrollbar">
             {["All", "Shirts", "Pants", "Outerwear", "Accessories", "Footwear"].map(
@@ -136,26 +128,32 @@ const ProductsFeed = () => {
 
         {/* --- Product Grid --- */}
         <div
-          className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 transition-opacity duration-300 ${isLoading ? "opacity-50" : "opacity-100"}`}
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+          aria-busy={isLoading}
+          aria-live="polite"
         >
-          {products.map((product) => (
-            <ProductCard
-              key={product._id}
-              product={{
-                id: product._id,
-                title: product.title,
-                image:
-                  product.images?.[0]?.url ||
-                  "https://via.placeholder.com/400x500/18181b/ffffff?text=Product+Image",
-                category: product.category || "Uncategorized",
-                description:
-                  product.description ||
-                  product.vendorId?.vendorDetails?.storeName ||
-                  "",
-                price: product.basePrice,
-              }}
-            />
-          ))}
+          {isLoading
+            ? Array.from({ length: 8 }).map((_, idx) => (
+                <ProductCardSkeleton key={`skeleton-${idx}`} />
+              ))
+            : products.map((product) => (
+                <ProductCard
+                  key={product._id}
+                  product={{
+                    id: product._id,
+                    title: product.title,
+                    image:
+                      product.images?.[0]?.url ||
+                      "https://via.placeholder.com/400x500/18181b/ffffff?text=Product+Image",
+                    category: product.category || "Uncategorized",
+                    description:
+                      product.description ||
+                      product.vendorId?.vendorDetails?.storeName ||
+                      "",
+                    price: product.basePrice,
+                  }}
+                />
+              ))}
         </div>
 
         {/* Empty State */}
@@ -192,6 +190,7 @@ const ProductsFeed = () => {
           </div>
         )}
       </div>
+      <Footer />
     </div>
   );
 };

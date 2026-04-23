@@ -2,6 +2,7 @@ import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import ProductImageGallery from "@/components/ProductImageGallery";
 import WishlistButton from "@/components/WishlistButton";
+import ProductDetailsSkeleton from "@/components/ProductDetailsSkeleton";
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -84,12 +85,10 @@ const ProductDetails = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex flex-col bg-background">
+      <div className="min-h-screen flex flex-col bg-background" aria-busy="true" aria-live="polite">
         <Navbar />
-        <main className="flex-grow px-4 sm:px-6 lg:px-8 py-10">
-          <div className="text-center text-muted-foreground">
-            Loading product details...
-          </div>
+        <main className="flex-grow">
+          <ProductDetailsSkeleton />
         </main>
         <Footer />
       </div>
