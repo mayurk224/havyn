@@ -30,10 +30,9 @@ const ProductsFeed = () => {
 
   // --- Data Fetching ---
   useEffect(() => {
-    setIsLoading(true);
-    setError("");
-
     const fetchProducts = async () => {
+      setIsLoading(true);
+      setError("");
       try {
         const response = await productService.getProducts({
           page,
@@ -76,6 +75,20 @@ const ProductsFeed = () => {
 
         {/* --- Toolbar: Filters & Sorting --- */}
         <div className="flex flex-col sm:flex-row justify-between items-center mb-10 gap-4">
+          
+          {/* Search Input */}
+          <div className="w-full sm:max-w-md shrink-0">
+            <Input
+              type="text"
+              placeholder="Search items..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              className="rounded-full bg-muted/20 border-muted-foreground/10 focus-visible:ring-primary/20"
+            />
+          </div>
           
           {/* Category Tabs */}
           <div className="flex gap-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0 hide-scrollbar">

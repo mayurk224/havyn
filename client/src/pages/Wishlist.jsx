@@ -51,18 +51,12 @@ const Wishlist = () => {
         // Use functional updates to ensure we have the latest state
         setItems(response.data || []);
         
-        // Update global user wishlist IDs if they've changed
+        // Update global user wishlist IDs
         const newIds = response.wishlistIds || [];
-        const currentIds = user.wishlist || [];
-        const isSame = newIds.length === currentIds.length && 
-                      newIds.every((id, idx) => id === currentIds[idx]);
-        
-        if (!isSame) {
-          setUser((currentUser) => currentUser ? ({
-            ...currentUser,
-            wishlist: newIds,
-          }) : currentUser);
-        }
+        setUser((currentUser) => currentUser ? ({
+          ...currentUser,
+          wishlist: newIds,
+        }) : currentUser);
       } catch (err) {
         console.error("Error fetching wishlist:", err);
         const message = err?.response?.status === 401
