@@ -6,6 +6,7 @@ import authRoutes from "../routes/auth.routes.js";
 import vendorRoutes from "../routes/vendor.routes.js";
 import productRoutes from "../routes/product.routes.js";
 import wishlistRoutes from "../routes/wishlist.routes.js";
+import cartRoutes from "../routes/cart.routes.js";
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/vendor", vendorRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/wishlist", wishlistRoutes);
+app.use("/api/cart", cartRoutes);
 
 // Global Error Handler
 app.use((err, req, res, next) => {

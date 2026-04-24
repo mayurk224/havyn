@@ -11,6 +11,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Link, useParams } from "react-router";
 import { productService } from "@/services/product.service";
+import cartService from "@/services/cart.service";
 import {
   Truck,
   Calendar,
@@ -26,6 +27,8 @@ const ProductDetails = () => {
   const [error, setError] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [cartMessage, setCartMessage] = useState({ type: "", text: "" });
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -55,6 +58,31 @@ const ProductDetails = () => {
       fetchProduct();
     }
   }, [id]);
+
+  const handleAddToCart = async () => {
+    if (!selectedVariant || !inStock) return;
+
+    setIsAddingToCart(true);
+    setCartMessage({ type: "", text: "" });
+
+    try {
+      await cartService.addToCart({
+        productId: product._id || product.id,
+        size: selectedVariant.size,
+        color: selectedVariant.color,
+        quantity: 1,
+      });
+      setCartMessage({ type: "success", text: "Added to cart!" });
+    } catch (err) {
+      const msg =
+        err?.response?.data?.message || "Failed to add to cart. Please try again.";
+      setCartMessage({ type: "error", text: msg });
+    } finally {
+      setIsAddingToCart(false);
+      // Clear message after 3 seconds
+      setTimeout(() => setCartMessage({ type: "", text: "" }), 3000);
+    }
+  };
 
   const productImages =
     product?.images?.map((image) => image.url).filter(Boolean) || [];
@@ -188,13 +216,31 @@ const ProductDetails = () => {
                     ${displayPrice.toFixed(2)}
                   </h2>
                 </div>
-                <Button
-                  size="lg"
-                  className="h-14 px-12 text-lg font-semibold shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform"
-                  disabled={!inStock}
-                >
-                  {inStock ? "Add to Cart" : "Out of Stock"}
-                </Button>
+                <div className="flex flex-col items-end gap-2">
+                  <Button
+                    size="lg"
+                    className="h-14 px-12 text-lg font-semibold shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform"
+                    disabled={!inStock || isAddingToCart}
+                    onClick={handleAddToCart}
+                  >
+                    {isAddingToCart
+                      ? "Adding…"
+                      : inStock
+                      ? "Add to Cart"
+                      : "Out of Stock"}
+                  </Button>
+                  {cartMessage.text && (
+                    <p
+                      className={`text-sm font-medium ${
+                        cartMessage.type === "success"
+                          ? "text-emerald-600"
+                          : "text-destructive"
+                      }`}
+                    >
+                      {cartMessage.text}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
 

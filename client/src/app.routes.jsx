@@ -7,6 +7,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import CreateProduct from "./pages/CreateProduct";
 import ProductsFeed from "./pages/ProductsFeed";
 import Wishlist from "./pages/Wishlist";
+import Cart from "./pages/Cart";
 
 export const router = createBrowserRouter([
   {
@@ -50,6 +51,14 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <Wishlist />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/cart",
+    element: (
+      <ProtectedRoute>
+        <Cart />
       </ProtectedRoute>
     ),
   },
