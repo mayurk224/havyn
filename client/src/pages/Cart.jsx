@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -7,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { Link } from "react-router";
+import cartService from "@/services/cart.service";
 import { toast } from "sonner";
 import {
   Trash2,
@@ -20,44 +21,8 @@ import {
   Package,
   RotateCcw,
   ShieldCheck,
+  Loader2,
 } from "lucide-react";
-
-// ── Mock cart items ────────────────────────────────────────────────────
-const INITIAL_ITEMS = [
-  {
-    id: 1,
-    title: "Urban Minimalist Sneaker",
-    description: "Breathable mesh and premium leather details.",
-    price: 120.0,
-    image: "/images/products/sneaker.png",
-    category: "Shoes",
-    size: "M",
-    color: "White",
-    quantity: 1,
-  },
-  {
-    id: 2,
-    title: "Signature Mesh Watch",
-    description: "Timeless design with a modern silver strap.",
-    price: 250.0,
-    image: "/images/products/watch.png",
-    category: "Accessories",
-    size: "OS",
-    color: "Silver",
-    quantity: 2,
-  },
-  {
-    id: 3,
-    title: "Desert Leather Tote",
-    description: "Handcrafted Italian leather for daily use.",
-    price: 180.0,
-    image: "/images/products/bag.png",
-    category: "Travel",
-    size: "OS",
-    color: "Tan",
-    quantity: 1,
-  },
-];
 
 const PERKS = [
   { icon: Package, label: "Free Shipping", sub: "On orders over $200" },
@@ -65,14 +30,28 @@ const PERKS = [
   { icon: ShieldCheck, label: "Secure Checkout", sub: "256-bit SSL encrypted" },
 ];
 
-// ── Cart Item Row ──────────────────────────────────────────────────────
-const CartItem = ({ item, onQtyChange, onRemove }) => (
+const getItemKey = (item) => `${item.productId}-${item.size}-${item.color}`;
+
+const normalizeCartItems = (items = []) =>
+  items.map((item) => ({
+    id: getItemKey(item),
+    productId: item.productId,
+    title: item.title,
+    description: item.description,
+    price: Number(item.price || 0),
+    image: item.image || "https://via.placeholder.com/400x400?text=Product",
+    category: item.category,
+    size: item.size,
+    color: item.color,
+    quantity: item.quantity,
+  }));
+
+const CartItem = ({ item, isPending, onQtyChange, onRemove }) => (
   <Card className="premium-card border-none shadow-sm rounded-3xl overflow-hidden p-0 bg-background">
     <CardContent className="p-0">
       <div className="flex gap-0 items-stretch">
-        {/* Image */}
         <Link
-          to={`/products/${item.id}`}
+          to={`/products/${item.productId}`}
           className="w-36 sm:w-44 shrink-0 overflow-hidden rounded-l-3xl"
         >
           <AspectRatio ratio={1 / 1} className="h-full">
@@ -84,15 +63,13 @@ const CartItem = ({ item, onQtyChange, onRemove }) => (
           </AspectRatio>
         </Link>
 
-        {/* Details */}
         <div className="flex flex-col flex-grow p-5 sm:p-6 gap-3 min-w-0">
-          {/* Top row */}
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <div className="text-[10px] font-black text-primary/40 uppercase tracking-[0.2em] mb-1 leading-none">
                 {item.category}
               </div>
-              <Link to={`/products/${item.id}`}>
+              <Link to={`/products/${item.productId}`}>
                 <h3 className="text-base sm:text-lg font-bold tracking-tight line-clamp-1 hover:text-primary transition-colors">
                   {item.title}
                 </h3>
@@ -104,14 +81,18 @@ const CartItem = ({ item, onQtyChange, onRemove }) => (
             <button
               id={`remove-item-${item.id}`}
               aria-label="Remove item"
-              onClick={() => onRemove(item.id)}
-              className="text-muted-foreground hover:text-destructive transition-colors shrink-0 mt-0.5"
+              onClick={() => onRemove(item)}
+              disabled={isPending}
+              className="text-muted-foreground hover:text-destructive transition-colors shrink-0 mt-0.5 disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              <Trash2 className="h-4 w-4" />
+              {isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Trash2 className="h-4 w-4" />
+              )}
             </button>
           </div>
 
-          {/* Badges */}
           <div className="flex gap-2 flex-wrap">
             <Badge
               variant="secondary"
@@ -127,15 +108,13 @@ const CartItem = ({ item, onQtyChange, onRemove }) => (
             </Badge>
           </div>
 
-          {/* Bottom row */}
           <div className="flex items-center justify-between mt-auto pt-1">
-            {/* Qty stepper */}
             <div className="flex items-center gap-1 bg-muted/60 rounded-2xl px-1 py-1">
               <button
                 id={`dec-qty-${item.id}`}
                 aria-label="Decrease quantity"
-                onClick={() => onQtyChange(item.id, item.quantity - 1)}
-                disabled={item.quantity <= 1}
+                onClick={() => onQtyChange(item, item.quantity - 1)}
+                disabled={isPending || item.quantity <= 1}
                 className="h-7 w-7 rounded-xl flex items-center justify-center hover:bg-background transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 <Minus className="h-3 w-3" />
@@ -146,14 +125,14 @@ const CartItem = ({ item, onQtyChange, onRemove }) => (
               <button
                 id={`inc-qty-${item.id}`}
                 aria-label="Increase quantity"
-                onClick={() => onQtyChange(item.id, item.quantity + 1)}
-                className="h-7 w-7 rounded-xl flex items-center justify-center hover:bg-background transition-colors"
+                onClick={() => onQtyChange(item, item.quantity + 1)}
+                disabled={isPending}
+                className="h-7 w-7 rounded-xl flex items-center justify-center hover:bg-background transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 <Plus className="h-3 w-3" />
               </button>
             </div>
 
-            {/* Price */}
             <span className="text-lg sm:text-xl font-black tracking-tighter">
               ${(item.price * item.quantity).toFixed(2)}
             </span>
@@ -164,7 +143,6 @@ const CartItem = ({ item, onQtyChange, onRemove }) => (
   </Card>
 );
 
-// ── Order Summary ──────────────────────────────────────────────────────
 const OrderSummary = ({
   items,
   couponCode,
@@ -183,7 +161,6 @@ const OrderSummary = ({
       <CardContent className="p-6 sm:p-8 space-y-6">
         <h2 className="text-xl font-black tracking-tight">Order Summary</h2>
 
-        {/* Line items */}
         <div className="space-y-3 text-sm">
           <div className="flex justify-between">
             <span className="text-muted-foreground">
@@ -222,7 +199,6 @@ const OrderSummary = ({
           <span>${total.toFixed(2)}</span>
         </div>
 
-        {/* Coupon */}
         <div className="space-y-2">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
             Promo Code
@@ -248,12 +224,11 @@ const OrderSummary = ({
           </div>
           {couponApplied && (
             <p className="text-xs text-emerald-600 font-medium">
-              ✓ Code applied — 10% off your order!
+              Code applied. 10% off your order.
             </p>
           )}
         </div>
 
-        {/* CTA */}
         <Button
           id="checkout-btn"
           size="lg"
@@ -263,7 +238,6 @@ const OrderSummary = ({
           Checkout <ChevronRight className="h-5 w-5 ml-1" />
         </Button>
 
-        {/* Perks */}
         <div className="grid grid-cols-3 gap-3 pt-2">
           {PERKS.map(({ icon: Icon, label, sub }) => (
             <div
@@ -285,7 +259,6 @@ const OrderSummary = ({
   );
 };
 
-// ── Empty State ────────────────────────────────────────────────────────
 const EmptyCart = () => (
   <div className="flex flex-col items-center justify-center py-32 text-center gap-6">
     <div className="relative">
@@ -299,7 +272,7 @@ const EmptyCart = () => (
     <div className="space-y-2">
       <h2 className="text-2xl font-black tracking-tight">Your cart is empty</h2>
       <p className="text-muted-foreground text-base max-w-xs">
-        Looks like you haven't added anything yet. Browse the collection and
+        Looks like you haven&apos;t added anything yet. Browse the collection and
         find something you love.
       </p>
     </div>
@@ -315,26 +288,107 @@ const EmptyCart = () => (
   </div>
 );
 
-// ── Main Cart Page ─────────────────────────────────────────────────────
+const CartLoadingState = () => (
+  <div className="flex flex-col items-center justify-center py-24 gap-4" aria-busy="true">
+    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+    <p className="text-sm text-muted-foreground">Loading your cart...</p>
+  </div>
+);
+
 const Cart = () => {
-  const [items, setItems] = useState(INITIAL_ITEMS);
+  const [items, setItems] = useState([]);
   const [couponCode, setCouponCode] = useState("");
   const [couponApplied, setCouponApplied] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isClearing, setIsClearing] = useState(false);
+  const [pendingItems, setPendingItems] = useState({});
 
   const totalQty = items.reduce((a, i) => a + i.quantity, 0);
 
-  const handleQtyChange = (id, newQty) => {
-    if (newQty < 1) return;
-    setItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, quantity: newQty } : item,
-      ),
-    );
+  useEffect(() => {
+    const loadCart = async () => {
+      try {
+        setIsLoading(true);
+        const response = await cartService.getCart();
+        setItems(normalizeCartItems(response?.data?.items));
+      } catch (error) {
+        toast.error(
+          error?.response?.data?.message || "Failed to load your cart.",
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadCart();
+  }, []);
+
+  const setItemPending = (itemKey, isPending) => {
+    setPendingItems((prev) => ({
+      ...prev,
+      [itemKey]: isPending,
+    }));
   };
 
-  const handleRemove = (id) => {
-    setItems((prev) => prev.filter((item) => item.id !== id));
-    toast.success("Item removed from cart.");
+  const handleQtyChange = async (item, newQty) => {
+    if (newQty < 1) {
+      return;
+    }
+
+    const itemKey = getItemKey(item);
+    setItemPending(itemKey, true);
+
+    try {
+      const response = await cartService.updateQuantity({
+        productId: item.productId,
+        size: item.size,
+        color: item.color,
+        quantity: newQty,
+      });
+      setItems(normalizeCartItems(response?.data?.items));
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message || "Failed to update quantity.",
+      );
+    } finally {
+      setItemPending(itemKey, false);
+    }
+  };
+
+  const handleRemove = async (item) => {
+    const itemKey = getItemKey(item);
+    setItemPending(itemKey, true);
+
+    try {
+      const response = await cartService.removeFromCart({
+        productId: item.productId,
+        size: item.size,
+        color: item.color,
+      });
+      setItems(normalizeCartItems(response?.data?.items));
+      toast.success("Item removed from cart.");
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message || "Failed to remove item from cart.",
+      );
+    } finally {
+      setItemPending(itemKey, false);
+    }
+  };
+
+  const handleClearCart = async () => {
+    try {
+      setIsClearing(true);
+      await cartService.clearCart();
+      setItems([]);
+      toast.success("Cart cleared.");
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message || "Failed to clear your cart.",
+      );
+    } finally {
+      setIsClearing(false);
+    }
   };
 
   const handleApplyCoupon = () => {
@@ -355,7 +409,6 @@ const Cart = () => {
       <Navbar />
 
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        {/* Page Header */}
         <div className="mb-10">
           <Link
             to="/products"
@@ -377,40 +430,42 @@ const Cart = () => {
           </div>
         </div>
 
-        {items.length === 0 ? (
+        {isLoading ? (
+          <CartLoadingState />
+        ) : items.length === 0 ? (
           <EmptyCart />
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] xl:grid-cols-[1fr_400px] gap-8 lg:gap-12 items-start">
-            {/* Cart Items */}
             <section aria-label="Cart items" className="space-y-4">
               {items.map((item) => (
                 <CartItem
                   key={item.id}
                   item={item}
+                  isPending={Boolean(pendingItems[item.id])}
                   onQtyChange={handleQtyChange}
                   onRemove={handleRemove}
                 />
               ))}
 
-              {/* Clear cart */}
               <div className="flex justify-end pt-2">
                 <Button
                   id="clear-cart-btn"
                   variant="ghost"
                   size="sm"
                   className="text-muted-foreground hover:text-destructive transition-colors rounded-xl gap-1.5 text-xs font-semibold"
-                  onClick={() => {
-                    setItems([]);
-                    toast.success("Cart cleared.");
-                  }}
+                  onClick={handleClearCart}
+                  disabled={isClearing}
                 >
-                  <Trash2 className="h-3.5 w-3.5" />
+                  {isClearing ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-3.5 w-3.5" />
+                  )}
                   Clear all items
                 </Button>
               </div>
             </section>
 
-            {/* Order Summary */}
             <aside aria-label="Order summary">
               <OrderSummary
                 items={items}
