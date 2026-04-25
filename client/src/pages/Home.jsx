@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
+import { Link } from "react-router";
 
 const Home = () => {
   const slides = [
@@ -36,7 +37,7 @@ const Home = () => {
       id: 1,
       title: "Urban Minimalist Sneaker",
       description: "Breathable mesh and premium leather details.",
-      price: 120.00,
+      price: 120.0,
       image: "/images/products/sneaker.png",
       category: "Shoes",
     },
@@ -44,7 +45,7 @@ const Home = () => {
       id: 2,
       title: "Signature Mesh Watch",
       description: "Timeless design with a modern silver strap.",
-      price: 250.00,
+      price: 250.0,
       image: "/images/products/watch.png",
       category: "Accessories",
     },
@@ -52,7 +53,7 @@ const Home = () => {
       id: 3,
       title: "Desert Leather Tote",
       description: "Handcrafted Italian leather for daily use.",
-      price: 180.00,
+      price: 180.0,
       image: "/images/products/bag.png",
       category: "Travel",
     },
@@ -60,7 +61,7 @@ const Home = () => {
       id: 4,
       title: "Nightshade Sunglasses",
       description: "UV protection with a classic aesthetic frame.",
-      price: 95.00,
+      price: 95.0,
       image: "/images/products/sunglasses.png",
       category: "Accessories",
     },
@@ -113,6 +114,53 @@ const Home = () => {
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <section className="hero-carousel">
           <CustomCarousel slides={slides} />
+        </section>
+        <section className="products py-24 bg-muted/10">
+          <div className="px-4">
+            <div className="mb-8">
+              <h2 className="text-4xl md:text-6xl font-semibold tracking-tight featured-title-gradient mb-6 leading-snug">
+                Browse all you need
+              </h2>
+              <p className="text-muted-foreground text-lg md:text-xl max-w-2xl  leading-relaxed">
+                Shop the latest trends and timeless pieces from our collection.
+                Elevate your style with our curated selection.
+              </p>
+            </div>
+
+            <div className="flex gap-3 mb-16 flex-wrap">
+              {["Men", "Women", "Child", "New Arrived"].map((category) => (
+                <Link
+                  key={category}
+                  to={`/catalog?category=${category}`}
+                  className="block"
+                >
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="whitespace-nowrap font-medium text-muted-foreground hover:text-foreground hover:bg-primary/5 rounded-full transition-all"
+                  >
+                    {category}
+                  </Button>
+                </Link>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
+              {products.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+
+            <div className="mt-20 text-center">
+              <Button
+                variant="outline"
+                size="lg"
+                className="rounded-full px-16 h-16 text-xl font-black border-2 hover:bg-primary hover:text-white hover:scale-105 transition-all shadow-lg"
+              >
+                View All Collection
+              </Button>
+            </div>
+          </div>
         </section>
         <section className="featured py-24">
           <div className="max-w-4xl mx-auto text-center mb-20 px-4">
@@ -195,49 +243,7 @@ const Home = () => {
             </Card>
           </div>
         </section>
-        <section className="products pb-24 bg-muted/10">
-          <div className="px-4">
-            <div className="mb-16">
-              <h2 className="text-4xl md:text-6xl font-semibold tracking-tight featured-title-gradient mb-6 leading-snug">
-                Browse all you need
-              </h2>
-              <p className="text-muted-foreground text-lg md:text-xl max-w-2xl  leading-relaxed">
-                Shop the latest trends and timeless pieces from our collection.
-                Elevate your style with our curated selection.
-              </p>
-            </div>
 
-            <div className="flex gap-3 mb-16 flex-wrap">
-              {["All", "Shoes", "Accessories", "Travel", "Apparel"].map(
-                (cat) => (
-                  <Badge
-                    key={cat}
-                    variant={cat === "All" ? "default" : "outline"}
-                    className="px-8 py-2.5 rounded-full cursor-pointer hover:bg-primary hover:text-white transition-all text-sm font-bold shadow-sm"
-                  >
-                    {cat}
-                  </Badge>
-                ),
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
-              {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-
-            <div className="mt-20 text-center">
-              <Button
-                variant="outline"
-                size="lg"
-                className="rounded-full px-16 h-16 text-xl font-black border-2 hover:bg-primary hover:text-white hover:scale-105 transition-all shadow-lg"
-              >
-                View All Collection
-              </Button>
-            </div>
-          </div>
-        </section>
         <section className="py-24 overflow-hidden bg-background">
           <div className="container mx-auto px-4 mb-20 text-center">
             <h2 className="text-5xl md:text-7xl font-bold tracking-tighter mb-8 featured-title-gradient">
