@@ -73,6 +73,17 @@ const ProductDetails = () => {
         quantity: 1,
       });
       setCartMessage({ type: "success", text: "Added to cart!" });
+
+      // Emit event for Navbar popup
+      const image = product?.images?.[0]?.url || "https://via.placeholder.com/900x900/18181b/ffffff?text=Product+Image";
+      window.dispatchEvent(new CustomEvent("productAddedToCart", {
+        detail: {
+          product: {
+            title: product.title,
+            image: image
+          }
+        }
+      }));
     } catch (err) {
       const msg =
         err?.response?.data?.message || "Failed to add to cart. Please try again.";

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
 import { useAuth } from "../hooks/useAuth";
 import {
@@ -31,10 +31,30 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
-
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 const Navbar = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { user, logout } = useAuth();
+  const [cartPopupOpen, setCartPopupOpen] = useState(false);
+  const [addedProduct, setAddedProduct] = useState(null);
+
+  useEffect(() => {
+    const handleProductAdded = (e) => {
+      setAddedProduct(e.detail.product);
+      setCartPopupOpen(true);
+      // Automatically close after 4 seconds
+      setTimeout(() => {
+        setCartPopupOpen(false);
+      }, 4000);
+    };
+
+    window.addEventListener("productAddedToCart", handleProductAdded);
+    return () => window.removeEventListener("productAddedToCart", handleProductAdded);
+  }, []);
 
   const getInitials = (name) => {
     if (!name) return "?";
@@ -147,25 +167,66 @@ const Navbar = () => {
                 <TooltipContent>Notifications</TooltipContent>
               </Tooltip>
 
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="relative rounded-full"
-                    onClick={() => navigate("/cart")}
-                  >
-                    <ShoppingCart className="size-5" />
-                    <Badge
-                      variant="secondary"
-                      className="absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full p-0 text-[10px] border-2 border-background"
-                    >
-                      2
-                    </Badge>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>My Cart</TooltipContent>
-              </Tooltip>
+              <Popover open={cartPopupOpen} onOpenChange={(open) => {
+                if (!open) setCartPopupOpen(false);
+              }}>
+                <PopoverTrigger asChild>
+                  <div>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="relative rounded-full"
+                          onClick={() => navigate("/cart")}
+                        >
+                          <ShoppingCart className="size-5" />
+                          <Badge
+                            variant="secondary"
+                            className="absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full p-0 text-[10px] border-2 border-background"
+                          >
+                            2
+                          </Badge>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>My Cart</TooltipContent>
+                    </Tooltip>
+                  </div>
+                </PopoverTrigger>
+                <PopoverContent className="w-72 mt-2" align="end">
+                  {addedProduct ? (
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="h-14 w-14 overflow-hidden rounded-md border flex-shrink-0">
+                          <img
+                            src={addedProduct.image}
+                            alt={addedProduct.title}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                        <div className="flex flex-col justify-center max-w-[180px]">
+                          <p className="text-sm font-semibold text-foreground line-clamp-1">
+                            {addedProduct.title}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            Added to cart
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        className="w-full text-xs font-medium"
+                        onClick={() => {
+                          setCartPopupOpen(false);
+                          navigate("/cart");
+                        }}
+                      >
+                        Go to Cart
+                      </Button>
+                    </div>
+                  ) : null}
+                </PopoverContent>
+              </Popover>
 
               <div className="h-6 w-px bg-border mx-1 hidden sm:block" />
 
